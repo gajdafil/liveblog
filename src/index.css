@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --muni-blue: #0000dc;   /* RGB 0/0/220 – základní MUNI modrá */
-  --muni-law: #9100dc;    /* RGB 145/0/220 – fakultní barva PrF MUNI */
+  --muni-blue: #0000dc;   /* RGB 0/0/220 – MUNI modrá */
+  --muni-law: #9100dc;    /* RGB 145/0/220 – MUNI LAW */
   --muni-black: #000000;  /* RGB 0/0/0 – MUNI černá */
   --muni-white: #ffffff;  /* RGB 255/255/255 – MUNI bílá */
 }
@@ -12,13 +12,13 @@
 @layer base {
   html,
   body {
-    font-family: 'Skolar', 'Cambria', 'Literata', Georgia, 'Times New Roman', serif;
+    font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+    font-variation-settings: "SOFT" 0, "WONK" 0;
     color: var(--muni-black);
     background-color: #f8f9fc;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Vynucení patkového písma i pro formulářové prvky a tlačítka */
   button,
   input,
   select,
@@ -26,7 +26,7 @@
     font-family: inherit;
   }
 
-  /* Typografická pravidla dle manuálu MUNI: zarovnání vlevo a zákaz dělení slov */
+  /* Zarovnání vlevo a zákaz dělení slov dle pravidel MUNI */
   h1,
   h2,
   h3,
@@ -41,32 +41,32 @@
   }
 }
 
-/* Horní fakultní lišta v barvě MUNI LAW (#9100DC) */
+/* Horní fakultní lišta v barvě MUNI LAW */
 header {
   border-top: 4px solid var(--muni-law);
 }
 
-/* Karty jednotlivých příspěvků v čisté mřížce s ostrým kontrastem */
+/* Karty jednotlivých příspěvků */
 article {
   border-radius: 0.5rem;
   border-color: #d8dce6;
 }
 
-/* Připnutý příspěvek nad přenosem: kombinace MUNI modré a fakultní MUNI LAW */
+/* Připnutý příspěvek nad přenosem */
 section[aria-label="Připnutá zpráva"] article {
   border-color: var(--muni-blue);
   border-left: 6px solid var(--muni-law);
   background-color: #f5f3ff;
 }
 
-/* Odlišení důležité zprávy fakultní barvou MUNI LAW (#9100DC) */
+/* Odlišení důležité zprávy fakultní barvou MUNI LAW */
 article.border-l-amber-500 {
   border-left-color: var(--muni-law) !important;
   border-color: #e4ccff;
   background-color: #faf5ff;
 }
 
-/* Štítek "Důležité" v barvě MUNI LAW s bílým písmem pro čitelný kontrast */
+/* Štítek "Důležité" v barvě MUNI LAW s bílým písmem */
 article .bg-amber-500 {
   background-color: var(--muni-law) !important;
   color: var(--muni-white) !important;
@@ -83,7 +83,7 @@ article .bg-amber-500 {
   color: var(--muni-law);
 }
 
-/* Zaostření vstupních polí (focus ring) v MUNI modré */
+/* Zaostření vstupních polí v MUNI modré */
 input:focus,
 textarea:focus,
 select:focus {
