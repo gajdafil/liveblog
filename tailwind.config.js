@@ -4,8 +4,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Skolar', 'Cambria', 'Literata', 'Georgia', 'Times New Roman', 'serif'],
-        serif: ['Skolar', 'Cambria', 'Literata', 'Georgia', 'Times New Roman', 'serif'],
+        sans: ['Fraunces', 'Georgia', 'Times New Roman', 'serif'],
+        serif: ['Fraunces', 'Georgia', 'Times New Roman', 'serif'],
         mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
@@ -22,7 +22,7 @@ export default {
           300: '#99A0FF',
           400: '#5C66FF',
           500: '#1F2BFF',
-          600: '#0000DC', // MUNI modrá (RGB 0/0/220)
+          600: '#0000DC',
           700: '#0000B0',
           800: '#000085',
           900: '#00005C',
