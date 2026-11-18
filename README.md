@@ -39,3 +39,62 @@ Z bezpečnostních důvodů neobsahuje zdrojový kód žádné výchozí heslo. 
    UPDATE public.profiles
    SET role = 'admin', full_name = 'Hlavní administrátor'
    WHERE email = 'admin@vase-domena.cz';
+4. Nyní se můžete přihlásit v aplikaci na adrese /#/admin/login.
+
+## 4. Konfigurace Supabase Storage a Edge Function
+
+    Storage: Spuštěním skriptu 02_rls_and_storage.sql se automaticky vytvořil veřejný bucket broadcast-media s limitem 10 MB na soubor a bezpečnostními RLS politikami. Ověřte v Storage → Buckets, že je bucket broadcast-media přítomen.
+
+    Edge Function pro zakládání novinářů z webového rozhraní:
+
+        Nainstalujte Supabase CLI (npm install -g supabase) a přihlaste se (supabase login).
+
+        Propojte projekt (supabase link --project-ref ID_PROJEKTU) a nasaďte funkci:
+        Bash
+
+        supabase functions deploy manage-users --no-verify-jwt
+
+        (Poznámka: Ověření JWT a role administrátora provádí samotný kód funkce manage-users/index.ts.)
+
+## 5. Nasazení na GitHub Pages
+
+    Nahrajte zdrojový kód do repozitáře na GitHubu (větev main).
+
+    V repozitáři otevřete Settings → Secrets and variables → Actions → New repository secret a přidejte:
+
+        VITE_SUPABASE_URL – URL vašeho Supabase projektu
+
+        VITE_SUPABASE_ANON_KEY – veřejný anon klíč ze Supabase
+
+        VITE_PUBLIC_SITE_URL – cílová URL vašeho webu (např. https://ucet.github.io/prenosy)
+
+    Přejděte do Settings → Pages a v sekci Build and deployment → Source vyberte GitHub Actions.
+
+    Po každém pushi do větve main se spustí workflow .github/workflows/deploy.yml, které aplikaci sestaví a publikuje.
+
+## 6. Provozní příručky
+Vytvoření prvního živého přenosu
+
+    Přihlaste se na /#/admin.
+
+    Klikněte na tlačítko Nový přenos.
+
+    Vyplňte název události (URL identifikátor se vygeneruje automaticky), datum konání, úvodní informaci pro čtenáře a zvolte stav Aktivní (Živě).
+
+    Po uložení klikněte u přenosu na Vstoupit do redakce přenosu.
+
+Přidání účtu novináře
+
+    Jako administrátor otevřete /#/admin a přepněte se na záložku Správa novinářů.
+
+    Vyplňte jméno, e-mail, počáteční heslo (min. 8 znaků), zvolte roli Novinář a klikněte na Vytvořit účet.
+
+    Účet je ihned aktivní. V přehledu členů redakce lze kdykoliv účet deaktivovat nebo odeslat odkaz pro změnu hesla.
+
+Vložení přenosu do jiného webu (Embed)
+
+    V redakčním dashboardu nebo přímo v redakčním studiu klikněte na tlačítko Embed kód.
+
+    Nastavte požadovanou výšku (výchozí 800 px) a zkopírujte vygenerovaný kód <iframe>.
+
+    Vložte kód do HTML bloku cílového webu (WordPress blok „Vlastní HTML“, Joomla, Drupal nebo statická stránka). Přenos se v rámu aktualizuje živě bez redakčních prvků.
