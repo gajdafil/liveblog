@@ -2,8 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --muni-blue: #0000dc;   /* RGB 0/0/220 – základní MUNI modrá */
+  --muni-law: #9100dc;    /* RGB 145/0/220 – fakultní barva PrF MUNI */
+  --muni-black: #000000;  /* RGB 0/0/0 – MUNI černá */
+  --muni-white: #ffffff;  /* RGB 255/255/255 – MUNI bílá */
+}
+
 @layer base {
+  html,
   body {
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: 'Skolar', 'Cambria', 'Literata', Georgia, 'Times New Roman', serif;
+    color: var(--muni-black);
+    background-color: #f8f9fc;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* Vynucení patkového písma i pro formulářové prvky a tlačítka */
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  /* Typografická pravidla dle manuálu MUNI: zarovnání vlevo a zákaz dělení slov */
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  article,
+  .prose {
+    text-align: left;
+    hyphens: none;
+    -webkit-hyphens: none;
+    word-break: normal;
+  }
+}
+
+/* Horní fakultní lišta v barvě MUNI LAW (#9100DC) */
+header {
+  border-top: 4px solid var(--muni-law);
+}
+
+/* Karty jednotlivých příspěvků v čisté mřížce s ostrým kontrastem */
+article {
+  border-radius: 0.5rem;
+  border-color: #d8dce6;
+}
+
+/* Připnutý příspěvek nad přenosem: kombinace MUNI modré a fakultní MUNI LAW */
+section[aria-label="Připnutá zpráva"] article {
+  border-color: var(--muni-blue);
+  border-left: 6px solid var(--muni-law);
+  background-color: #f5f3ff;
+}
+
+/* Odlišení důležité zprávy fakultní barvou MUNI LAW (#9100DC) */
+article.border-l-amber-500 {
+  border-left-color: var(--muni-law) !important;
+  border-color: #e4ccff;
+  background-color: #faf5ff;
+}
+
+/* Štítek "Důležité" v barvě MUNI LAW s bílým písmem pro čitelný kontrast */
+article .bg-amber-500 {
+  background-color: var(--muni-law) !important;
+  color: var(--muni-white) !important;
+}
+
+/* Odkazy v textu příspěvků v MUNI modré */
+.prose a {
+  color: var(--muni-blue);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+
+.prose a:hover {
+  color: var(--muni-law);
+}
+
+/* Zaostření vstupních polí (focus ring) v MUNI modré */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--muni-blue) !important;
+  box-shadow: 0 0 0 3px rgba(0, 0, 220, 0.14);
 }
