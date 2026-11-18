@@ -43,23 +43,16 @@ Z bezpečnostních důvodů neobsahuje zdrojový kód žádné výchozí heslo. 
 
 ## 4. Konfigurace Supabase Storage a Edge Function
 
-    Storage: Spuštěním skriptu 02_rls_and_storage.sql se automaticky vytvořil veřejný bucket broadcast-media s limitem 10 MB na soubor a bezpečnostními RLS politikami. Ověřte v Storage → Buckets, že je bucket broadcast-media přítomen.
-
-    Edge Function pro zakládání novinářů z webového rozhraní:
-
-        Nainstalujte Supabase CLI (npm install -g supabase) a přihlaste se (supabase login).
-
-        Propojte projekt (supabase link --project-ref ID_PROJEKTU) a nasaďte funkci:
+1. Storage: Spuštěním skriptu 02_rls_and_storage.sql se automaticky vytvořil veřejný bucket broadcast-media s limitem 10 MB na soubor a bezpečnostními RLS politikami. Ověřte v Storage → Buckets, že je bucket broadcast-media přítomen.
+2. Edge Function pro zakládání novinářů z webového rozhraní:
+3. Nainstalujte Supabase CLI (npm install -g supabase) a přihlaste se (supabase login).
+4. Propojte projekt (supabase link --project-ref ID_PROJEKTU) a nasaďte funkci:
         Bash
-
-        supabase functions deploy manage-users --no-verify-jwt
-
-        (Poznámka: Ověření JWT a role administrátora provádí samotný kód funkce manage-users/index.ts.)
+       supabase functions deploy manage-users --no-verify-jwt
+       (Poznámka: Ověření JWT a role administrátora provádí samotný kód funkce manage-users/index.ts.)
 
 ## 5. Nasazení na GitHub Pages
-
-    Nahrajte zdrojový kód do repozitáře na GitHubu (větev main).
-
+1. Nahrajte zdrojový kód do repozitáře na GitHubu (větev main).
     V repozitáři otevřete Settings → Secrets and variables → Actions → New repository secret a přidejte:
 
         VITE_SUPABASE_URL – URL vašeho Supabase projektu
