@@ -12,6 +12,9 @@ import type {
 
 const PAGE_SIZE = 25;
 
+type AuthorSummary = Pick<Profile, 'id' | 'full_name' | 'email'>;
+type PostPayload = RealtimePostgresChangesPayload<Post>;
+
 interface UseRealtimeBroadcastOptions {
   slug?: string;
   broadcastId?: string;
@@ -31,13 +34,12 @@ export function useRealtimeBroadcast({
   const [error, setError] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
 
-  // Mezipaměť autorů, aby nebylo nutné dotazovat profil při každé Realtime zprávě
-  const authorsCacheRef = useRef>>(new Map());
-  const isInitialLoadedRef = useRef(false);
-  const eventBufferRef = useRef<RealtimePostgresChangesPayload<Post>[]>([]);
+  const authorsCacheRef = useRef>(new Map());
+  const isInitialLoadedRef = useRef<boolean>(false);
+  const eventBufferRef = useRef<PostPayload[]>([]);
   const lastSyncRef = useRef<string>(new Date().toISOString());
 
-  const resolveAuthor = useCallback(async (authorId: string) => {
+  const resolveAuthor = useCallback(async (authorId: string): Promise<AuthorSummary | null> => {
     const cached = authorsCacheRef.current.get(authorId);
     if (cached) return cached;
 
@@ -48,7 +50,7 @@ export function useRealtimeBroadcast({
       .single();
 
     if (data) {
-      const profile = data as Pick<Profile, 'id' | 'full_name' | 'email'>;
+      const profile = data as AuthorSummary;
       authorsCacheRef.current.set(authorId, profile);
       return profile;
     }
@@ -78,7 +80,6 @@ export function useRealtimeBroadcast({
       const postIds = rawPosts.map((p) => p.id);
       const authorIds = Array.from(new Set(rawPosts.map((p) => p.author_id)));
 
-      // Načtení chybějících autorů
       const missingAuthorIds = authorIds.filter((id) => !authorsCacheRef.current.has(id));
       if (missingAuthorIds.length > 0) {
         const { data: profilesData } = await supabase
@@ -87,11 +88,10 @@ export function useRealtimeBroadcast({
           .in('id', missingAuthorIds);
 
         (profilesData || []).forEach((p) => {
-          authorsCacheRef.current.set(p.id, p as Pick<Profile, 'id' | 'full_name' | 'email'>);
+          authorsCacheRef.current.set(p.id, p as AuthorSummary);
         });
       }
 
-      // Načtení médií pro dávku příspěvků
       const { data: mediaData } = await supabase
         .from('post_media')
         .select('*')
@@ -116,7 +116,7 @@ export function useRealtimeBroadcast({
   );
 
   const applyRealtimePostEvent = useCallback(
-    async (payload: RealtimePostgresChangesPayload<Post>) => {
+    async (payload: PostPayload) => {
       if (payload.eventType === 'DELETE') {
         const deletedId = (payload.old as Partial<Post>)?.id;
         if (deletedId) {
@@ -128,7 +128,6 @@ export function useRealtimeBroadcast({
       const incoming = payload.new as Post;
       if (!incoming || !incoming.id) return;
 
-      // Kontrola viditelnosti pro aktuální režim (veřejný vs. redakční)
       const isVisible =
         incoming.deleted_at === null &&
         (includeUnpublished || incoming.status === 'published');
@@ -156,7 +155,6 @@ export function useRealtimeBroadcast({
       setPosts((prev) => {
         const map = new Map<string, PostWithDetails>();
         prev.forEach((item) => {
-          // Pokud se nový příspěvek připíná, odepneme předchozí lokálně hned
           if (hydrated.is_pinned && item.id !== hydrated.id && item.is_pinned) {
             map.set(item.id, { ...item, is_pinned: false });
           } else {
@@ -175,7 +173,6 @@ export function useRealtimeBroadcast({
     [includeUnpublished, resolveAuthor, sortPosts]
   );
 
-  // Rozdílová synchronizace po obnovení spojení
   const syncDelta = useCallback(
     async (targetBroadcastId: string) => {
       let query = supabase
@@ -220,7 +217,6 @@ export function useRealtimeBroadcast({
     let channel: ReturnType<typeof supabase.channel> | null = null;
 
     const init = async () => {
-      // 1. Načtení metadat přenosu
       let bQuery = supabase.from('broadcasts').select('*');
       if (broadcastId) {
         bQuery = bQuery.eq('id', broadcastId);
@@ -244,7 +240,6 @@ export function useRealtimeBroadcast({
       const currentBroadcast = bData as Broadcast;
       setBroadcast(currentBroadcast);
 
-      // 2. Nejprve přihlásit Realtime odběr (prevence ztráty zpráv během úvodního dotazu)
       channel = supabase
         .channel(`broadcast-live-${currentBroadcast.id}-${includeUnpublished ? 'ed' : 'pub'}`)
         .on(
@@ -257,9 +252,9 @@ export function useRealtimeBroadcast({
           },
           (payload) => {
             if (!isInitialLoadedRef.current) {
-              eventBufferRef.current.push(payload as RealtimePostgresChangesPayload<Post>);
+              eventBufferRef.current.push(payload as PostPayload);
             } else {
-              void applyRealtimePostEvent(payload as RealtimePostgresChangesPayload<Post>);
+              void applyRealtimePostEvent(payload as PostPayload);
             }
           }
         )
@@ -316,7 +311,6 @@ export function useRealtimeBroadcast({
           }
         });
 
-      // 3. Načtení úvodní stránky příspěvků + připnutého příspěvku
       let postsQuery = supabase
         .from('posts')
         .select('*')
@@ -346,7 +340,6 @@ export function useRealtimeBroadcast({
       const rawList = (initialPosts as Post[]) || [];
       setHasMore(rawList.length === PAGE_SIZE);
 
-      // Ujistíme se, že připnutý příspěvek je načten i kdyby byl starší než PAGE_SIZE
       if (!rawList.some((p) => p.is_pinned)) {
         const { data: pinnedData } = await supabase
           .from('posts')
@@ -370,7 +363,6 @@ export function useRealtimeBroadcast({
       isInitialLoadedRef.current = true;
       setLoading(false);
 
-      // 4. Přehrání událostí zachycených během úvodního načítání
       const buffered = [...eventBufferRef.current];
       eventBufferRef.current = [];
       for (const ev of buffered) {
