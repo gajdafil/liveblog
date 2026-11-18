@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Přesměrování…</title>
+    <script>
+      // SPA fallback pro GitHub Pages: přesměruje přímé cesty na HashRouter
+      (function () {
+        var l = window.location;
+        var base = l.pathname.split('/').slice(0, -1).join('/');
+        var route = l.pathname.slice(base.length);
+        l.replace(l.protocol + '//' + l.host + base + '/#' + route + l.search);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
