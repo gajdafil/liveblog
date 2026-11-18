@@ -34,10 +34,12 @@ export function useRealtimeBroadcast({
   const [error, setError] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
 
-  const authorsCacheRef = useRef>(new Map());
-  const isInitialLoadedRef = useRef<boolean>(false);
-  const eventBufferRef = useRef<PostPayload[]>([]);
-  const lastSyncRef = useRef<string>(new Date().toISOString());
+  const initialAuthors: Map<string, AuthorSummary> = new Map();
+  const authorsCacheRef = useRef(initialAuthors);
+  const isInitialLoadedRef = useRef(false);
+  const initialBuffer: PostPayload[] = [];
+  const eventBufferRef = useRef(initialBuffer);
+  const lastSyncRef = useRef(new Date().toISOString());
 
   const resolveAuthor = useCallback(async (authorId: string): Promise<AuthorSummary | null> => {
     const cached = authorsCacheRef.current.get(authorId);
